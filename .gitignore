@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+data/manuals/
+data/images/
+data/index/
+*.npy
