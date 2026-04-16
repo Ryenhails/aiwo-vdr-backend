@@ -1,8 +1,20 @@
 fastapi>=0.104
 uvicorn>=0.24
-sentence-transformers>=3.0
+# Qwen3-VL-Embedding-2B needs sentence_transformers.base (introduced in 5.2+)
+sentence-transformers>=5.4
 numpy>=1.24
 Pillow>=10.0
 openai>=1.0
+anthropic>=0.39
 python-multipart>=0.0.6
 pydantic>=2.0
+
+# Indexing + local VLM (only needed on GPU hosts)
+PyMuPDF>=1.24
+tqdm>=4.66
+# Qwen3-VL card pins these
+torch>=2.8
+torchvision>=0.26          # required by qwen-vl-utils
+transformers>=4.57
+accelerate>=0.33
+qwen-vl-utils>=0.0.14

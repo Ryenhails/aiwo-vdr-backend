@@ -1,7 +1,14 @@
 __pycache__/
 *.pyc
 .env
-data/manuals/
+.env.local
+
+# Data — commit the source PDF and the embeddings index (small and
+# expensive to rebuild). Skip the 180+ MB of page PNGs: a collaborator can
+# regenerate them from the PDF with PyMuPDF in ~20 s on CPU (see
+# INTEGRATION_GUIDE.md §7.3).
 data/images/
-data/index/
-*.npy
+
+# Transients
+*.log
+.ipynb_checkpoints/

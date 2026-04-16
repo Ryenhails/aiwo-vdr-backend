@@ -31,55 +31,34 @@ def pdf_to_images(pdf_path: str, dpi: int = 200) -> list[Image.Image]:
     return images
 
 
-def encode_with_teacher(images: list[Image.Image], batch_size: int = 4):
-    """Encode document page images with Qwen3-VL-Embedding-2B."""
-    import torch
-    from transformers import AutoProcessor
+def encode_with_teacher(
+    images: list[Image.Image],
+    model_name: str = "Qwen/Qwen3-VL-Embedding-2B",
+    batch_size: int = 4,
+) -> np.ndarray:
+    """Encode document page images using the Qwen3-VL-Embedding-2B teacher.
 
-    # Use the official Qwen3-VL-Embedding script
-    model_name = "Qwen/Qwen3-VL-Embedding-2B"
-    processor = AutoProcessor.from_pretrained(model_name, trust_remote_code=True)
+    Uses the official `sentence-transformers` entry point documented on the
+    model card — it wraps the custom Qwen3-VL embedder correctly. Requires
+    sentence-transformers>=5.2 (for `sentence_transformers.base`).
+    """
+    from sentence_transformers import SentenceTransformer
 
-    from transformers import AutoModel
-    model = AutoModel.from_pretrained(
-        model_name, trust_remote_code=True, torch_dtype=torch.float16,
-    ).eval().cuda()
+    print(f"Loading teacher: {model_name}")
+    model = SentenceTransformer(model_name)
+    print(f"  dim={model.get_embedding_dimension()}, device={model.device}")
 
-    all_embeddings = []
-    for i in tqdm(range(0, len(images), batch_size), desc="Encoding pages"):
-        batch_imgs = images[i:i + batch_size]
-        # Format as conversations for Qwen3-VL
-        conversations = []
-        for img in batch_imgs:
-            conversations.append([
-                {"role": "system", "content": [{"type": "text", "text": "Represent the user's input."}]},
-                {"role": "user", "content": [{"type": "image", "image": img}]},
-            ])
+    # ST expects image inputs as dicts `{"image": PIL.Image}`.
+    inputs = [{"image": img} for img in images]
 
-        text = processor.apply_chat_template(conversations, add_generation_prompt=True, tokenize=False)
-        from qwen_vl_utils.vision_process import process_vision_info
-        imgs_processed, _, video_kwargs = process_vision_info(
-            conversations, image_patch_size=16, return_video_metadata=True, return_video_kwargs=True,
-        )
-
-        inputs = processor(
-            text=text, images=imgs_processed, padding=True, truncation=True,
-            max_length=8192, return_tensors="pt", do_resize=False, **video_kwargs,
-        ).to("cuda")
-
-        with torch.no_grad():
-            outputs = model(**inputs)
-            # Last-token pooling
-            attn = inputs["attention_mask"]
-            flipped = attn.flip(dims=[1])
-            last_pos = flipped.argmax(dim=1)
-            col = attn.shape[1] - last_pos - 1
-            row = torch.arange(outputs.last_hidden_state.shape[0], device="cuda")
-            embs = outputs.last_hidden_state[row, col]
-            embs = torch.nn.functional.normalize(embs, p=2, dim=-1)
-            all_embeddings.append(embs.cpu().numpy())
-
-    return np.concatenate(all_embeddings, axis=0)
+    embeddings = model.encode(
+        inputs,
+        batch_size=batch_size,
+        show_progress_bar=True,
+        normalize_embeddings=True,
+        convert_to_numpy=True,
+    )
+    return embeddings.astype(np.float32)
 
 
 def main():
@@ -89,17 +68,22 @@ def main():
     parser.add_argument("--image_dir", type=str, default="data/images")
     parser.add_argument("--dpi", type=int, default=200)
     parser.add_argument("--batch_size", type=int, default=4)
+    parser.add_argument(
+        "--teacher_model",
+        type=str,
+        default="Qwen/Qwen3-VL-Embedding-2B",
+        help="SentenceTransformer-compatible teacher model name.",
+    )
     args = parser.parse_args()
 
     os.makedirs(args.output_dir, exist_ok=True)
     os.makedirs(args.image_dir, exist_ok=True)
 
-    # Collect all PDFs
     pdf_files = sorted([f for f in os.listdir(args.pdf_dir) if f.lower().endswith(".pdf")])
     print(f"Found {len(pdf_files)} PDF files")
 
-    all_images = []
-    page_metadata = []
+    all_images: list[Image.Image] = []
+    page_metadata: list[dict] = []
 
     for pdf_file in pdf_files:
         pdf_path = os.path.join(args.pdf_dir, pdf_file)
@@ -121,11 +105,13 @@ def main():
 
     print(f"\nTotal: {len(all_images)} pages from {len(pdf_files)} PDFs")
 
-    # Encode with teacher
-    print("\nEncoding with Qwen3-VL-Embedding-2B...")
-    embeddings = encode_with_teacher(all_images, batch_size=args.batch_size)
+    print(f"\nEncoding with {args.teacher_model}...")
+    embeddings = encode_with_teacher(
+        all_images,
+        model_name=args.teacher_model,
+        batch_size=args.batch_size,
+    )
 
-    # Save index
     np.save(os.path.join(args.output_dir, "doc_embeddings.npy"), embeddings.astype(np.float16))
     with open(os.path.join(args.output_dir, "page_metadata.json"), "w") as f:
         json.dump(page_metadata, f, indent=2)

@@ -1,0 +1,441 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* ================= NAVIGATION ================= */
+
+.topnav {
+  background-color: #111111;
+  border-bottom: 2px solid #FFD200;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 0.75rem;
+  align-items: center;
+}
+
+.navlogo {
+  font-size: 1.3rem;
+  margin-left: 1rem;
+  font-weight: 700;
+  color: #FFD200;
+  letter-spacing: 1px;
+}
+
+.navlinks {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-right: 1rem;
+}
+
+.navlinks a {
+  font-weight: 500;
+  color: #ffffff;
+}
+
+.navlinks a:hover {
+  color: #FFD200;
+}
+
+/* ================= MODEL SELECT ================= */
+
+.modelselect {
+  background: #1c1c1c;
+  color: #ffffff;
+  border: 1px solid #FFD200;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  min-width: 10rem;
+}
+
+.modelselect:hover {
+  background: #FFD200;
+  color: #000;
+}
+
+.modelselect:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.modelloading {
+  color: #888;
+  font-size: 0.85rem;
+}
+
+/* ================= CHAT CONTAINER ================= */
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 2rem 0;
+  flex-direction: column;
+}
+
+.cloud {
+  width: 75vw;
+  height: 65vh;
+  background: #1c1c1c;
+  border: 2px solid #FFD200;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* ================= MESSAGE LIST ================= */
+
+.messagelist {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.messagelistloading {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+/* ================= USER MESSAGE ================= */
+
+.usermessage {
+  background: #1c1c1c;
+  padding: 1.5rem;
+  color: #ffffff;
+  border-left: 4px solid #FFD200;
+  display: flex;
+}
+
+.usermessagewaiting {
+  padding: 1.5rem;
+  color: #ffffff;
+  background: #1c1c1c;
+  border-left: 4px solid #FFD200;
+  display: flex;
+}
+
+/* ================= AI MESSAGE ================= */
+
+.apimessage {
+  background: #111111;
+  padding: 1.5rem;
+  color: #ffffff;
+  border-left: 4px solid #FFD200;
+  display: flex;
+  animation: fadein 0.4s ease-in;
+}
+
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ================= MARKDOWN STYLING ================= */
+
+.markdownanswer {
+  line-height: 1.7;
+}
+
+.markdownanswer a {
+  color: #FFD200;
+  font-weight: 600;
+}
+
+.markdownanswer a:hover {
+  opacity: 0.8;
+}
+
+.markdownanswer code {
+  color: #FFD200;
+  background: #000;
+  padding: 2px 6px;
+}
+
+.markdownanswer ol,
+.markdownanswer ul {
+  margin: 1rem;
+}
+
+.markdownanswer h1,
+.markdownanswer h2,
+.markdownanswer h3 {
+  font-size: inherit;
+}
+
+/* AiWo RAG page thumbnails inside assistant markdown. */
+.markdownanswer img {
+  max-width: 160px;
+  max-height: 220px;
+  object-fit: cover;
+  border: 1px solid #444;
+  border-radius: 4px;
+  margin: 4px 4px 0 0;
+  vertical-align: top;
+  background: #fff;
+}
+
+/* ================= INPUT AREA ================= */
+
+.cloudform {
+  width: 75vw;
+}
+
+/* Flex row: textarea + mic + send all in a line */
+.inputrow {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  border: 2px solid #FFD200;
+  background: #1c1c1c;
+  box-sizing: border-box;
+}
+
+.inputrow:focus-within {
+  box-shadow: 0 0 10px rgba(255, 210, 0, 0.4);
+}
+
+.textarea {
+  flex: 1;
+  resize: none;
+  font-size: 1.1rem;
+  padding: 1rem 1.25rem;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  outline: none;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.textarea:disabled {
+  opacity: 0.6;
+}
+
+.textarea::placeholder {
+  color: #888;
+}
+
+/* Status banner above input (mic errors, countdown notice) */
+.micbanner {
+  font-size: 0.8rem;
+  color: #e74c3c;
+  padding: 0.3rem 0.5rem;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+/* ================= MIC BUTTON ================= */
+
+.micbutton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  background: none;
+  border: none;
+  border-left: 1px solid #333;
+  color: #888;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  position: relative; /* for ripple rings */
+}
+
+.micbutton:hover {
+  color: #FFD200;
+  background: rgba(255, 210, 0, 0.08);
+}
+
+.micbutton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Actively recording — green */
+.miclistening {
+  color: #2ecc71 !important;
+  background: rgba(46, 204, 113, 0.12) !important;
+}
+
+/* Speaking state — blue rings, assistant is talking */
+.micspeaking {
+  color: #3498db !important;
+  background: rgba(52, 152, 219, 0.12) !important;
+}
+
+.speakingring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(52, 152, 219, 0.5);
+  animation: micripple 1.8s ease-out infinite;
+  pointer-events: none;
+}
+
+.speakingring2 {
+  animation-delay: 0.9s;
+}
+
+/* Countdown — yellow (Ponsse brand), pulses to signal imminent send */
+.miccountdown {
+  color: #FFD200 !important;
+  background: rgba(255, 210, 0, 0.12) !important;
+  animation: micpulse 0.6s ease-in-out infinite alternate;
+}
+
+/* Error */
+.micerror {
+  color: #e74c3c !important;
+}
+
+/* Ripple rings while listening */
+.micring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(46, 204, 113, 0.5);
+  animation: micripple 1.4s ease-out infinite;
+  pointer-events: none;
+}
+
+.micring2 {
+  animation-delay: 0.7s;
+}
+
+@keyframes micripple {
+  0%   { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(1.9); opacity: 0;   }
+}
+
+/* Shrinking ring during countdown — visually communicates time running out */
+.miccountdownring {
+  position: absolute;
+  inset: -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 210, 0, 0.7);
+  animation: miccountdown 1.5s linear forwards;
+  pointer-events: none;
+}
+
+@keyframes miccountdown {
+  0%   { transform: scale(1.4); opacity: 0.8; }
+  100% { transform: scale(1.0); opacity: 0;   }
+}
+
+@keyframes micpulse {
+  from { opacity: 0.7; }
+  to   { opacity: 1.0; }
+}
+
+/* ================= SEND BUTTON ================= */
+
+.generatebutton {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  background: none;
+  border: none;
+  border-left: 1px solid #333;
+  color: #FFD200;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.generatebutton:hover {
+  background: #FFD200;
+  color: #000;
+}
+
+.generatebutton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.svgicon {
+  transform: rotate(90deg);
+  width: 1.2em;
+  height: 1.2em;
+  fill: currentColor;
+}
+
+.loadingwheel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ================= ICONS ================= */
+
+.boticon,
+.usericon {
+  margin-right: 1rem;
+}
+
+/* ================= FOOTER ================= */
+
+.footer {
+  color: #777;
+  font-size: 0.8rem;
+  margin: 1.5rem;
+}
+
+.footer a {
+  color: #FFD200;
+}
+
+.footer a:hover {
+  opacity: 0.8;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 600px) {
+  .main {
+    padding: 1rem;
+    max-height: 90vh;
+  }
+
+  .cloud {
+    width: 22rem;
+    height: 28rem;
+  }
+
+  .textarea {
+    width: 22rem;
+  }
+
+  .topnav {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .navlinks {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .modelselect {
+    width: 100%;
+    font-size: 0.85rem;
+  }
+
+  .footer {
+    font-size: 0.7rem;
+    text-align: center;
+  }
+}

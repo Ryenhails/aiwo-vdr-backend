@@ -1,0 +1,35 @@
+{
+  "name": "chat-ui",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@emotion/react": "^11.13.5",
+    "@emotion/styled": "^11.13.5",
+    "@google/genai": "^0.7.0",
+    "@mui/material": "^5.16.14",
+    "next": "14.2.25",
+    "openai": "^4.82.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-markdown": "^9.0.3",
+    "remark-gfm": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.14",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "14.2.25",
+    "local-ssl-proxy": "^2.0.5",
+    "prettier": "^3.4.2",
+    "typescript": "^5.7.3"
+  }
+}

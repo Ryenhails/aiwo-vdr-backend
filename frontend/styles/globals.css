@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* ===== INDUSTRIAL BASE ===== */
+
+body {
+  background-color: #111111;      /* deep industrial black */
+  color: #ffffff;
+}
+
+/* ===== LINKS ===== */
+
+a {
+  color: #FFD200;                 /* Ponsse yellow */
+  text-decoration: none;
+  font-weight: 500;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ===== GLOBAL UTILITIES ===== */
+
+button {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Remove rounded corners for machine feel */
+* {
+  border-radius: 0 !important;
+}
