@@ -1,5 +1,6 @@
 fastapi>=0.104
 uvicorn>=0.24
+python-dotenv>=1.0      # auto-loads .env at server startup (no shell `export` needed)
 # Qwen3-VL-Embedding-2B needs sentence_transformers.base (introduced in 5.2+)
 sentence-transformers>=5.4
 numpy>=1.24

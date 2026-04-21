@@ -36,6 +36,16 @@ from pydantic import BaseModel
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# Auto-load .env from the repo root so operators don't have to `export` secrets
+# into their shell (which leaks into bash history + `ps`). Pre-existing process
+# env vars win, so shell overrides still work for ad-hoc debugging.
+try:
+    from dotenv import load_dotenv
+    _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    load_dotenv(dotenv_path=os.path.join(_REPO_ROOT, ".env"), override=False)
+except ImportError:
+    pass  # python-dotenv optional; falls back to shell env
+
 from retrieval.retriever import DocumentRetriever
 from generation.factory import build_generator
 

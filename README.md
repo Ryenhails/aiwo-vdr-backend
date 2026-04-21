@@ -61,39 +61,27 @@ Highlights:
 
 ### 0. Prereqs
 
-- Python 3.11 + a CUDA GPU (≥20 GB VRAM) if you want `VLM_BACKEND=local`.
-  Otherwise any machine that can run `pip install` will do — set
-  `VLM_BACKEND=azure` or `VLM_BACKEND=claude` and supply creds.
-- Node.js ≥ 18 for the frontend.
+- **Python 3.11**. Any virtual-environment tool works — the examples below
+  use the stdlib `venv`; see [conda alternative](#conda-alternative) if you
+  prefer conda.
+- **Node.js ≥ 18** for the frontend. Check with `node -v`.
+- **A CUDA GPU with ≥20 GB VRAM** only if you want `VLM_BACKEND=local`.
+  For `claude` / `azure`, any machine that can reach the API will do.
 
 ### 1. Backend
 
 ```bash
-# Create an env
-conda create -p ./.conda-aiwo-rag python=3.11 -y
-conda activate ./.conda-aiwo-rag
+# Create a virtual env and install deps
+python3.11 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 
-# Pick a generation backend
-export VLM_BACKEND=local                                              # on-prem GPU
-# export VLM_BACKEND=claude   ANTHROPIC_API_KEY=sk-ant-...             # Anthropic
-# export VLM_BACKEND=azure    AZURE_OPENAI_ENDPOINT=... AZURE_OPENAI_API_KEY=...
+# Configure — the backend reads .env automatically, no `export` needed.
+cp .env.example .env
+$EDITOR .env          # set VLM_BACKEND and the relevant credentials
 
-# (first-time) regenerate page PNGs — the index itself is committed (§ Data)
-python - <<'PY'
-import fitz, os, json
-meta = json.load(open("data/index/page_metadata.json"))
-pages_by_pdf = {}
-for m in meta:
-    pages_by_pdf.setdefault(m["source"], []).append(m)
-os.makedirs("data/images", exist_ok=True)
-for pdf_name, pages in pages_by_pdf.items():
-    doc = fitz.open(f"data/manuals/{pdf_name}")
-    for m in pages:
-        pix = doc[m["page_number"]].get_pixmap(matrix=fitz.Matrix(200/72, 200/72))
-        pix.save(f"data/images/{m['image_path']}")
-print(f"rasterised {len(meta)} pages")
-PY
+# First time only — rebuild page PNGs from the committed index (~20 s, CPU)
+python scripts/rasterize_from_index.py
 
 # Serve
 uvicorn api.server:app --host 0.0.0.0 --port 8765
@@ -104,6 +92,19 @@ Health check:
 curl http://127.0.0.1:8765/health
 ```
 
+#### conda alternative
+
+```bash
+conda create -p ./.conda-aiwo-rag python=3.11 -y
+conda activate ./.conda-aiwo-rag
+pip install -r requirements.txt
+# …then proceed with `cp .env.example .env`, the rasterize script, and uvicorn.
+```
+
+If `conda` is not on your PATH, install miniconda first
+([docs.conda.io/miniconda](https://docs.conda.io/en/latest/miniconda.html))
+and add it to your shell's PATH per the installer's instructions.
+
 ### 2. Frontend
 
 ```bash
@@ -113,13 +114,18 @@ npm install
 npm run dev                              # → http://localhost:3000
 ```
 
+Next.js reads `.env.local` automatically — do **not** `export` secrets in
+your shell.
+
 Open `http://localhost:3000`, pick **AiWo RAG (Ponsse, local Qwen2.5-VL)**
 from the dropdown, ask a question. Retrieved pages appear as thumbnails
 below the answer; click to open full-size.
 
 ### 3. Indexing a new manual (requires GPU)
 
-If you add a different PDF under `data/manuals/`, regenerate the index:
+The bundled index covers exactly one manual (Ponsse Scorpion King 8W, 491
+pages). To point the system at different PDFs, drop them into
+`data/manuals/` and rebuild:
 
 ```bash
 python scripts/index_documents.py \
@@ -129,7 +135,9 @@ python scripts/index_documents.py \
     --dpi 200 --batch_size 4
 ```
 
-Details and what-to-commit guidance: see
+This rasterises every page AND encodes it with Qwen3-VL-Embedding-2B, so
+after it finishes you don't need the separate `rasterize_from_index.py`.
+Details and what-to-commit guidance:
 [`INTEGRATION_GUIDE.md §7`](INTEGRATION_GUIDE.md#7-data-preparation).
 
 ---

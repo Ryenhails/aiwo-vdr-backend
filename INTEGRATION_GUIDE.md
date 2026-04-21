@@ -62,18 +62,20 @@ you want `VLM_BACKEND=local`.
 git clone <backend repo URL>
 cd aiwo-vdr-backend
 
-conda create -p ./.conda python=3.11 -y
-conda activate ./.conda
+python3.11 -m venv .venv         # or: conda create -p ./.conda python=3.11 -y
+source .venv/bin/activate
 pip install -r requirements.txt
 
-# 2. Pick a generation backend — see §9 for the full menu
-export VLM_BACKEND=local                # uses GPU
-# or: export VLM_BACKEND=claude ANTHROPIC_API_KEY=sk-ant-...
-# or: export VLM_BACKEND=azure AZURE_OPENAI_ENDPOINT=... AZURE_OPENAI_API_KEY=... VLM_DEPLOYMENT=gpt-4o
+# 2. Configure — the backend auto-loads .env via python-dotenv at startup.
+#    See §9 for the full per-backend menu.
+cp .env.example .env
+$EDITOR .env                     # set VLM_BACKEND and the relevant credentials
 
-# 3. (First time only) build the index — see §7
-python scripts/index_documents.py --pdf_dir data/manuals/ \
-    --output_dir data/index/ --image_dir data/images/
+# 3. Rebuild page PNGs (CPU, ~20 s) — only needed once per fresh clone
+python scripts/rasterize_from_index.py
+
+# (Or, to ingest a new PDF end-to-end on a GPU host, see §7.1:
+#  python scripts/index_documents.py --pdf_dir data/manuals/ ...)
 
 # 4. Serve
 uvicorn api.server:app --host 0.0.0.0 --port 8765
@@ -329,21 +331,13 @@ manual + index but not the images, add to `.gitignore`:
 
 ### 7.3  Regenerating images only (no GPU)
 
-A collaborator who cloned with the committed PDF + index but without images
-can rasterize with PyMuPDF alone:
+A collaborator who cloned with the committed PDF + index but without
+images can rebuild them from the PDF with PyMuPDF alone (CPU, ~20 s for
+the 491-page Ponsse manual):
 
-```python
-# scripts/rasterize_only.py (≈10 LOC)
-import fitz, os, json
-meta = json.load(open("data/index/page_metadata.json"))
-by_pdf = {}
-for m in meta: by_pdf.setdefault(m["source"], []).append(m)
-os.makedirs("data/images", exist_ok=True)
-for pdf_name, pages in by_pdf.items():
-    doc = fitz.open(f"data/manuals/{pdf_name}")
-    for m in pages:
-        pix = doc[m["page_number"]].get_pixmap(matrix=fitz.Matrix(200/72, 200/72))
-        pix.save(f"data/images/{m['image_path']}")
+```bash
+python scripts/rasterize_from_index.py          # defaults: 200 DPI, data/images/
+python scripts/rasterize_from_index.py --dpi 150 --overwrite   # or tweak
 ```
 
 ---
